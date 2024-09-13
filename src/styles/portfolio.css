@@ -1,0 +1,38 @@
+.portfolio-view {
+    padding: 20px;
+}
+
+.modal-content {
+    border-radius: 6px;
+    box-shadow: 0px 5px 10px rgba(90, 116, 148, 0.3);
+}
+
+.modal-header, .modal-footer {
+    background-color: #5a8dee;
+    color: white;
+}
+
+.modal-body label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.modal-body input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    margin-bottom: 15px;
+}
+
+.modal-footer .btn {
+    background-color: #fff;
+    color: #5a8dee;
+    border: 1px solid #5a8dee;
+}
+
+.modal-footer .btn:hover {
+    background-color: #467ed0;
+    color: #fff;
+}
