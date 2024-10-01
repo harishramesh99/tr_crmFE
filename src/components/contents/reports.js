@@ -1,68 +1,65 @@
 import React, { useState } from 'react';
-import { Button } from 'reactstrap';
-import ModalFormComponent from './modal.js';
-import '../../styles/global.css';
+import { Button, Input } from 'reactstrap';
+import axios from 'axios';
 
 const Reports = () => {
-    const [isModalOpen, setModalOpen] = useState(false);
-    const [reportData, setReportData] = useState({
-        reportName: '',
-        status: 'Pending'
+  const [reportTitle, setReportTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [attachment, setAttachment] = useState(null);
+  const [createdBy, setCreatedBy] = useState('');
+
+  const handleSubmit = () => {
+    const formData = new FormData();
+    formData.append('reportTitle', reportTitle);
+    formData.append('description', description);
+    formData.append('createdBy', createdBy);
+    if (attachment) {
+      formData.append('attachment', attachment);
+    }
+
+    axios.post('http://localhost:5000/api/reports', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    })
+    .then(response => {
+      console.log('Report submitted:', response.data);
+    })
+    .catch(error => {
+      console.error('Error submitting report:', error);
     });
+  };
 
-    const fields = [
-        { label: 'Report Name', name: 'reportName', type: 'text' },
-        { label: 'Status', name: 'status', type: 'dropdown', options: ['Pending', 'Approved', 'Rejected'] }
-    ];
-
-    const toggleModal = () => setModalOpen(!isModalOpen);
-
-    const handleInputChange = (e, isFile = false) => {
-        const { name, value, files } = e.target;
-        setReportData((prevData) => ({
-            ...prevData,
-            [name]: isFile ? files[0] : value
-        }));
-    };
-
-    const handleSubmit = () => {
-        // Add logic to submit the data, e.g., API call
-        console.log('Report Data:', reportData);
-        toggleModal();
-    };
-
-    return (
-        <div className="content-view">
-            <Button className="btn" color="primary" onClick={toggleModal}>Add New Report</Button>
-
-            <table className="table mt-4">
-                <thead className="thead-primary">
-                    <tr>
-                        <th>#</th>
-                        <th>Report</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {/* Example report data */}
-                    <tr>
-                        <td>1</td>
-                        <td>Quarterly Report</td>
-                        <td>Pending</td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <ModalFormComponent
-                isOpen={isModalOpen}
-                toggle={toggleModal}
-                fields={fields}
-                formData={reportData}
-                handleInputChange={handleInputChange}
-                handleSubmit={handleSubmit}
-            />
-        </div>
-    );
+  return (
+    <div className="form-container">
+      <h1>Add Report</h1>
+      <Input
+        type="text"
+        placeholder="Report Title"
+        value={reportTitle}
+        onChange={(e) => setReportTitle(e.target.value)}
+        className="form-input"
+      />
+      <Input
+        type="textarea"
+        placeholder="Description"
+        value={description}
+        onChange={(e) => setDescription(e.target.value)}
+        className="form-input"
+      />
+      <Input
+        type="text"
+        placeholder="Created By"
+        value={createdBy}
+        onChange={(e) => setCreatedBy(e.target.value)}
+        className="form-input"
+      />
+      <Input
+        type="file"
+        onChange={(e) => setAttachment(e.target.files[0])}
+        className="form-input"
+      />
+      <Button className="btn" color="primary" onClick={handleSubmit}>Submit Report</Button>
+    </div>
+  );
 };
 
 export default Reports;

@@ -10,17 +10,3 @@ root.render(
     <App />
   </React.StrictMode>
 );
-
-//import 'bootstrap/dist/css/bootstrap.min.css';
-//import 'bootstrap/dist/js/bootstrap.bundle.min';
-// Remove this line if not used
-// import { useState } from 'react';
-
-
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-    <ErrorBoundary />
-  </React.StrictMode>,
-  document.getElementById('root')
-);

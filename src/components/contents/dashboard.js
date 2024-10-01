@@ -1,71 +1,139 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Table, Button, Modal, ModalHeader, ModalBody, Input } from 'reactstrap';
+import axios from 'axios';
+import '../../styles/portfolio.css';
 import '../../styles/global.css';
 
-const Dashboard = () => {
-    const [data, setData] = useState([
-        { id: 1, project: 'Project Alpha', status: 'Ongoing' },
-        { id: 2, project: 'Project Beta', status: 'Completed' }
-    ]);
-    const [showModal, setShowModal] = useState(false);
-    const toggleModal = () => setShowModal(!showModal);
+const Portfolio = () => {
+  const [vessels, setVessels] = useState([]);
+  const [isVesselModalOpen, setIsVesselModalOpen] = useState(false);
+  const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
+  const [vesselName, setVesselName] = useState('');
+  const [projectNumber, setProjectNumber] = useState('');
+  const [locations, setLocations] = useState(['']);
+  const [description, setDescription] = useState('');
+  const [attachment, setAttachment] = useState(null);
+  const [currentVesselId, setCurrentVesselId] = useState('');
 
-    const handleSubmit = (event) => {
-        event.preventDefault();
-        const newEntry = {
-            id: data.length + 1,
-            project: event.target.project.value,
-            status: event.target.status.value,
-        };
-        setData([...data, newEntry]);
-        toggleModal();
-    };
+  // Fetch vessels dynamically from the backend
+  useEffect(() => {
+    axios.get('http://localhost:5000/api/vessels')
+      .then(response => setVessels(response.data))
+      .catch(error => console.error('Error fetching vessels:', error));
+  }, []);
 
-    return (
-        <div className="content-view">
-            <button className="btn" onClick={toggleModal}>Add New Project</button>
+  const toggleVesselModal = () => setIsVesselModalOpen(!isVesselModalOpen);
+  const toggleProjectModal = (vesselId = '') => {
+    setCurrentVesselId(vesselId);
+    setIsProjectModalOpen(!isProjectModalOpen);
+    if (!isProjectModalOpen) {
+      setProjectNumber('');
+      setLocations(['']);
+      setDescription('');
+      setAttachment(null);
+    }
+  };
 
-            <table className="table mt-4">
-                <thead className="thead-primary">
-                    <tr>
-                        <th>#</th>
-                        <th>Project</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {data.map(item => (
-                        <tr key={item.id}>
-                            <td>{item.id}</td>
-                            <td>{item.project}</td>
-                            <td>{item.status}</td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
+  const addVessel = () => {
+    axios.post('http://localhost:5000/api/vessels', { vesselName })
+      .then(response => {
+        setVessels([...vessels, response.data]);
+        toggleVesselModal();
+      })
+      .catch(error => console.error('Error adding vessel:', error));
+  };
 
-            {showModal && (
-                <div className="modal">
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h5 className="modal-title">Add New Project</h5>
-                            <button className="close" onClick={toggleModal}>×</button>
-                        </div>
-                        <form onSubmit={handleSubmit}>
-                            <div className="modal-body">
-                                <label htmlFor="project">Project Name</label>
-                                <input type="text" name="project" required />
-                                <label htmlFor="status">Status</label>
-                                <input type="text" name="status" required />
-                            </div>
-                            <div className="modal-footer">
-                                <button type="submit" className="btn">Add</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
-        </div>
-    );
+  const addProject = () => {
+    axios.post('http://localhost:5000/api/projects', { projectNumber, locations, description, attachment })
+      .then(response => {
+        const updatedVessels = vessels.map(vessel => 
+          vessel._id === currentVesselId ? { ...vessel, projects: [...vessel.projects, response.data] } : vessel
+        );
+        setVessels(updatedVessels);
+        toggleProjectModal();
+      })
+      .catch(error => console.error('Error adding project:', error));
+  };
+
+  return (
+    <div className="portfolio-view">
+      <h1>Vessels</h1>
+      <Button className="btn" color="primary" onClick={toggleVesselModal}>Add New Vessel</Button>
+      <Table className="table table-text-small mb-0">
+        <thead className="thead-primary table-sorting">
+          <tr>
+            <th>Vessel Name</th>
+            <th>Projects</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {vessels.map(vessel => (
+            <tr key={vessel._id}>
+              <td>{vessel.vesselName}</td>
+              <td>
+                <ul>
+                  {vessel.projects.map(project => (
+                    <li key={project._id}>
+                      {project.projectNumber} - {project.description} <br />
+                      Locations: {project.locations.join(', ')} <br />
+                      Attachment: {project.attachment ? project.attachment : 'No file attached'}
+                    </li>
+                  ))}
+                </ul>
+              </td>
+              <td>
+                <Button color="secondary" onClick={() => toggleProjectModal(vessel._id)}>Add Project</Button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </Table>
+
+      <Modal isOpen={isVesselModalOpen} toggle={toggleVesselModal}>
+        <ModalHeader toggle={toggleVesselModal}>Add Vessel</ModalHeader>
+        <ModalBody>
+          <div>
+            <label>Vessel Name:</label>
+            <Input type="text" value={vesselName} onChange={e => setVesselName(e.target.value)} />
+          </div>
+          <Button className="btn" color="primary" onClick={addVessel}>Add Vessel</Button>
+          <Button color="secondary" onClick={toggleVesselModal}>Cancel</Button>
+        </ModalBody>
+      </Modal>
+
+      <Modal isOpen={isProjectModalOpen} toggle={toggleProjectModal}>
+        <ModalHeader toggle={toggleProjectModal}>Add Project</ModalHeader>
+        <ModalBody>
+          <div>
+            <label>Project Number:</label>
+            <Input type="text" value={projectNumber} onChange={e => setProjectNumber(e.target.value)} />
+          </div>
+          <div>
+            <label>Locations:</label>
+            {locations.map((location, index) => (
+              <Input key={index} type="text" value={location} onChange={e => setLocations(prev => {
+                const newLocations = [...prev];
+                newLocations[index] = e.target.value;
+                return newLocations;
+              })} />
+            ))}
+            <Button color="secondary" onClick={() => setLocations([...locations, ''])}>Add Another Location</Button>
+          </div>
+          <div>
+            <label>Description:</label>
+            <Input type="textarea" value={description} onChange={e => setDescription(e.target.value)} />
+          </div>
+          <div>
+            <label>Attachment:</label>
+            <Input type="file" onChange={e => setAttachment(e.target.files[0])} />
+          </div>
+          <Button className="btn" color="primary" onClick={addProject}>Add Project</Button>
+          <Button color="secondary" onClick={toggleProjectModal}>Cancel</Button>
+        </ModalBody>
+      </Modal>
+    </div>
+  );
 };
 
-export default Dashboard;
+export default Portfolio;

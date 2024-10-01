@@ -1,55 +1,67 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const AddVessel = ({ onVesselAdded }) => {
+const AddVesselForm = ({ onVesselAdded }) => {
   const [vesselName, setVesselName] = useState('');
+  const [portfolios, setPortfolios] = useState([]);
   const [portfolioId, setPortfolioId] = useState('');
+
+  useEffect(() => {
+    const fetchPortfolios = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/portfolios');
+        setPortfolios(response.data);
+      } catch (error) {
+        console.error('Error fetching portfolios:', error);
+      }
+    };
+    fetchPortfolios();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const submissionData = { vesselName, portfolioId };
-    alert(`Form Submitted!\nVessel Name: ${vesselName}\nPortfolio ID: ${portfolioId}`);
-
     try {
-      const response = await axios.post('http://localhost:5000/API/vesselRoutes', submissionData);
-      alert('Vessel added successfully!');
-
-      // Clear form after submission
+      const response = await axios.post('http://localhost:5000/api/vessels', { vesselName, portfolioId });
+      onVesselAdded(response.data);
       setVesselName('');
       setPortfolioId('');
-
-      if (onVesselAdded) {
-        onVesselAdded(response.data);  // Notify parent component
-      }
-    } catch (err) {
-      console.error("Error adding vessel", err);
+    } catch (error) {
+      console.error('Error adding vessel:', error);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div>
+    <form onSubmit={handleSubmit} className="form-container">
+      <div className="form-group">
         <label>Vessel Name:</label>
         <input
           type="text"
           value={vesselName}
           onChange={(e) => setVesselName(e.target.value)}
           required
+          className="form-input"
         />
       </div>
-      <div>
-        <label>Portfolio ID:</label>
-        <input
-          type="text"
+      <div className="form-group">
+        <label>Portfolio:</label>
+        <select
           value={portfolioId}
           onChange={(e) => setPortfolioId(e.target.value)}
           required
-        />
+          className="form-input"
+        >
+          <option value="" disabled>Select Portfolio</option>
+          {portfolios.map((portfolio) => (
+            <option key={portfolio._id} value={portfolio._id}>
+              {portfolio.portfolioName}
+            </option>
+          ))}
+        </select>
       </div>
-      <button type="submit">Add Vessel</button>
+      <button type="submit" className="btn">Add Vessel</button>
     </form>
   );
 };
 
-export default AddVessel;
+export default AddVesselForm;

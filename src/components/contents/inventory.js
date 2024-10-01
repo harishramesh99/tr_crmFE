@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Button } from 'reactstrap';
-import ModalFormComponent from './modal.js';
+import ModalFormComponent from './modal.mjs';
 import '../../styles/global.css';
 
 const Inventory = () => {
@@ -11,11 +11,7 @@ const Inventory = () => {
         status: 'Available'
     });
 
-    const fields = [
-        { label: 'Item Name', name: 'itemName', type: 'text' },
-        { label: 'Quantity', name: 'quantity', type: 'number' },
-        { label: 'Status', name: 'status', type: 'dropdown', options: ['Available', 'Out of Stock'] }
-    ];
+    
 
     const toggleModal = () => setModalOpen(!isModalOpen);
 
@@ -28,10 +24,16 @@ const Inventory = () => {
     };
 
     const handleSubmit = () => {
-        // Add logic to submit the data, e.g., API call
-        console.log('Inventory Data:', inventoryData);
-        toggleModal();
-    };
+        axios.post('http://localhost:5000/api/inventory', inventoryData)  // Update URL to match backend
+          .then((response) => {
+            console.log('Inventory Data Submitted:', response.data);
+            toggleModal();
+          })
+          .catch((error) => {
+            console.error('Error submitting inventory:', error);
+          });
+      };
+      
 
     return (
         <div className="content-view">

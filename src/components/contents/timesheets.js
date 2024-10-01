@@ -1,72 +1,76 @@
-import React, { useState } from 'react';
-import { Button } from 'reactstrap';
-import ModalFormComponent from './modal.js';
-import '../../styles/global.css';
+import React, { useState, useEffect } from 'react';
+import { Button, Input } from 'reactstrap';
+import axios from 'axios';
 
 const Timesheets = () => {
-    const [isModalOpen, setModalOpen] = useState(false);
-    const [timesheetData, setTimesheetData] = useState({
-        employee: '',
-        hours: 0,
-        status: 'Pending'
+  const [workerName, setWorkerName] = useState('');
+  const [date, setDate] = useState('');
+  const [hoursWorked, setHoursWorked] = useState('');
+  const [projectId, setProjectId] = useState('');
+  const [manpower, setManpower] = useState([]);
+
+  // Fetch manpower list when component mounts
+  useEffect(() => {
+    axios.get('http://localhost:5000/api/manpower')
+      .then(response => {
+        setManpower(response.data);
+      })
+      .catch(error => {
+        console.error('Error fetching manpower:', error);
+      });
+  }, []);
+
+  const handleSubmit = () => {
+    axios.post('http://localhost:5000/api/timesheets', {
+      workerName,
+      date,
+      hoursWorked,
+      projectId
+    })
+    .then(response => {
+      console.log('Timesheet submitted:', response.data);
+    })
+    .catch(error => {
+      console.error('Error submitting timesheet:', error);
     });
+  };
 
-    const fields = [
-        { label: 'Employee Name', name: 'employee', type: 'text' },
-        { label: 'Hours Worked', name: 'hours', type: 'number' },
-        { label: 'Status', name: 'status', type: 'dropdown', options: ['Pending', 'Approved', 'Rejected'] }
-    ];
-
-    const toggleModal = () => setModalOpen(!isModalOpen);
-
-    const handleInputChange = (e, isFile = false) => {
-        const { name, value, files } = e.target;
-        setTimesheetData((prevData) => ({
-            ...prevData,
-            [name]: isFile ? files[0] : value
-        }));
-    };
-
-    const handleSubmit = () => {
-        // Add logic to submit the data, e.g., API call
-        console.log('Timesheet Data:', timesheetData);
-        toggleModal();
-    };
-
-    return (
-        <div className="content-view">
-            <Button className="btn" color="primary" onClick={toggleModal}>Add New Timesheet</Button>
-
-            <table className="table mt-4">
-                <thead className="thead-primary">
-                    <tr>
-                        <th>#</th>
-                        <th>Employee</th>
-                        <th>Hours</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {/* Example timesheets data */}
-                    <tr>
-                        <td>1</td>
-                        <td>John Doe</td>
-                        <td>8</td>
-                        <td>Pending</td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <ModalFormComponent
-                isOpen={isModalOpen}
-                toggle={toggleModal}
-                fields={fields}
-                formData={timesheetData}
-                handleInputChange={handleInputChange}
-                handleSubmit={handleSubmit}
-            />
-        </div>
-    );
+  return (
+    <div>
+      <h1>Add Timesheet</h1>
+      <Input
+        type="select"
+        value={workerName}
+        onChange={(e) => setWorkerName(e.target.value)}
+      >
+        <option value="">Select Worker</option>
+        {manpower.map(worker => (
+          <option key={worker._id} value={worker.workerName}>
+            {worker.workerName} - {worker.role}
+          </option>
+        ))}
+      </Input>
+      <Input
+        type="date"
+        placeholder="Date"
+        value={date}
+        onChange={(e) => setDate(e.target.value)}
+      />
+      <Input
+        type="number"
+        placeholder="Hours Worked"
+        value={hoursWorked}
+        onChange={(e) => setHoursWorked(e.target.value)}
+      />
+      <Input
+        type="text"
+        placeholder="Project ID"
+        value={projectId}
+        onChange={(e) => setProjectId(e.target.value)}
+      />
+      <Button color="primary" onClick={handleSubmit}>Submit Timesheet</Button>
+    </div>
+  );
 };
 
 export default Timesheets;
