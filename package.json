@@ -4,10 +4,7 @@
   "description": "This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).",
   "main": "index.js",
   "type": "module",
-  "homepage": "https://harishramesh99.github.io/tr_crm",
   "scripts": {
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d build",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
@@ -24,12 +21,10 @@
     "react-scripts": "^5.0.1",
     "reactstrap": "^9.2.2"
   },
-  
-    "engines": {
-      "node": ">=14.x",
-      "npm": ">=6.x"
-    },
-    
+  "engines": {
+    "node": ">=14.x",
+    "npm": ">=6.x"
+  },
   "browserslist": {
     "production": [
       ">0.2%",
@@ -41,8 +36,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "devDependencies": {
-    "gh-pages": "^6.1.1"
   }
 }
