@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Button } from 'reactstrap';
+import axios from 'axios';
 import ModalFormComponent from './modal.mjs';
 import '../../styles/global.css';
 
@@ -10,8 +11,6 @@ const Inventory = () => {
         quantity: 0,
         status: 'Available'
     });
-
-    
 
     const toggleModal = () => setModalOpen(!isModalOpen);
 
@@ -24,7 +23,8 @@ const Inventory = () => {
     };
 
     const handleSubmit = () => {
-        axios.post('http://localhost:5000/api/inventory', inventoryData)  // Update URL to match backend
+        const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+        axios.post(`${apiUrl}/inventory`, inventoryData)  // Use environment variable for the API URL
           .then((response) => {
             console.log('Inventory Data Submitted:', response.data);
             toggleModal();
@@ -33,7 +33,6 @@ const Inventory = () => {
             console.error('Error submitting inventory:', error);
           });
       };
-      
 
     return (
         <div className="content-view">

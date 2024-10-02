@@ -11,7 +11,8 @@ const Timesheets = () => {
 
   // Fetch manpower list when component mounts
   useEffect(() => {
-    axios.get('http://localhost:5000/api/manpower')
+    const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+    axios.get(`${apiUrl}/manpower`)
       .then(response => {
         setManpower(response.data);
       })
@@ -21,7 +22,8 @@ const Timesheets = () => {
   }, []);
 
   const handleSubmit = () => {
-    axios.post('http://localhost:5000/api/timesheets', {
+    const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+    axios.post(`${apiUrl}/timesheets`, {
       workerName,
       date,
       hoursWorked,

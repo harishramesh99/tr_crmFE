@@ -9,7 +9,8 @@ const AddVesselForm = ({ onVesselAdded }) => {
   useEffect(() => {
     const fetchPortfolios = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/portfolios');
+        const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+        const response = await axios.get(`${apiUrl}/portfolios`);
         setPortfolios(response.data);
       } catch (error) {
         console.error('Error fetching portfolios:', error);
@@ -22,7 +23,8 @@ const AddVesselForm = ({ onVesselAdded }) => {
     e.preventDefault();
 
     try {
-      const response = await axios.post('http://localhost:5000/api/vessels', { vesselName, portfolioId });
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+      const response = await axios.post(`${apiUrl}/vessels`, { vesselName, portfolioId });
       onVesselAdded(response.data);
       setVesselName('');
       setPortfolioId('');

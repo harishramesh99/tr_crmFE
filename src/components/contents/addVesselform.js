@@ -9,8 +9,11 @@ const AddVesselForm = ({ onVesselAdded }) => {
     e.preventDefault();
 
     try {
+      // Get the base API URL from environment variables or fallback to localhost for development
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+      
       // Send POST request to create a new vessel
-      const response = await axios.post('http://localhost:5000/api/vessels', { vesselName });
+      const response = await axios.post(`${apiUrl}/vessels`, { vesselName });
       
       // Notify the parent component that a new vessel has been added
       onVesselAdded(response.data);

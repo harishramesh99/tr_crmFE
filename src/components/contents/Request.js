@@ -28,7 +28,9 @@ const Requests = () => {
     }
     formData.append('status', requestData.status);
 
-    axios.post('http://localhost:5000/api/requests', formData)
+    const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';  // Use environment variable for the API URL
+
+    axios.post(`${apiUrl}/requests`, formData)
       .then((response) => {
         console.log('Request submitted:', response.data);
         toggleModal();

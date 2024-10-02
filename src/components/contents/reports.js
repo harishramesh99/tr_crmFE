@@ -17,7 +17,9 @@ const Reports = () => {
       formData.append('attachment', attachment);
     }
 
-    axios.post('http://localhost:5000/api/reports', formData, {
+    const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';  // Use environment variable
+
+    axios.post(`${apiUrl}/reports`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     })
     .then(response => {

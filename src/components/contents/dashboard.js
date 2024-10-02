@@ -17,7 +17,8 @@ const Portfolio = () => {
 
   // Fetch vessels dynamically from the backend
   useEffect(() => {
-    axios.get('http://localhost:5000/api/vessels')
+    const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+    axios.get(`${apiUrl}/vessels`)
       .then(response => setVessels(response.data))
       .catch(error => console.error('Error fetching vessels:', error));
   }, []);
@@ -35,7 +36,8 @@ const Portfolio = () => {
   };
 
   const addVessel = () => {
-    axios.post('http://localhost:5000/api/vessels', { vesselName })
+    const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+    axios.post(`${apiUrl}/vessels`, { vesselName })
       .then(response => {
         setVessels([...vessels, response.data]);
         toggleVesselModal();
@@ -44,7 +46,8 @@ const Portfolio = () => {
   };
 
   const addProject = () => {
-    axios.post('http://localhost:5000/api/projects', { projectNumber, locations, description, attachment })
+    const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+    axios.post(`${apiUrl}/projects`, { projectNumber, locations, description, attachment })
       .then(response => {
         const updatedVessels = vessels.map(vessel => 
           vessel._id === currentVesselId ? { ...vessel, projects: [...vessel.projects, response.data] } : vessel

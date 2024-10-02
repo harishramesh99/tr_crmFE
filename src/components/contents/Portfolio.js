@@ -20,7 +20,8 @@ const Portfolio = () => {
 
   // Fetch vessels dynamically from the backend
   useEffect(() => {
-    axios.get('http://localhost:5000/api/vessels')
+    const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+    axios.get(`${apiUrl}/vessels`)
       .then(response => setVessels(response.data))
       .catch(error => console.error('Error fetching vessels:', error));
   }, []);
@@ -47,8 +48,9 @@ const Portfolio = () => {
   };
 
   const addVessel = () => {
+    const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
     const vesselData = { vesselName: formData.vesselName };
-    axios.post('http://localhost:5000/api/vessels', vesselData)
+    axios.post(`${apiUrl}/vessels`, vesselData)
       .then(response => {
         setVessels([...vessels, response.data]);
         toggleVesselModal();
@@ -57,6 +59,7 @@ const Portfolio = () => {
   };
 
   const addProject = () => {
+    const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
     const projectData = {
       projectName: formData.projectName,
       locations: formData.locations,
@@ -64,7 +67,7 @@ const Portfolio = () => {
       vesselId: currentVesselId,
     };
 
-    axios.post('http://localhost:5000/api/projects', projectData)
+    axios.post(`${apiUrl}/projects`, projectData)
       .then(response => {
         const updatedVessels = vessels.map(vessel =>
           vessel._id === currentVesselId ? { ...vessel, projects: [...vessel.projects, response.data] } : vessel
@@ -81,36 +84,35 @@ const Portfolio = () => {
       <Button color="primary" onClick={toggleVesselModal}>Add New Vessel</Button>
 
       <Table className="table table-text-small mb-0">
-  <thead className="thead-primary table-sorting">
-    <tr>
-      <th>Vessel Name</th>
-      <th>Projects</th>
-      <th>Action</th>
-    </tr>
-  </thead>
-  <tbody>
-    {vessels.map((vessel) => (
-      <tr key={vessel._id}>
-        <td>{vessel.vesselName}</td>
-        <td>
-          <ul>
-            {vessel.projects.map((project) => (
-              <li key={project._id}>
-                {project.projectName} - {project.description} <br />
-                Locations: {project.locations ? project.locations.join(', ') : 'No locations available'} <br />
-                Attachment: {project.attachment ? project.attachment : 'No file attached'}
-              </li>
-            ))}
-          </ul>
-        </td>
-        <td>
-          <Button color="secondary" onClick={() => toggleProjectModal(vessel._id)}>Add Project</Button>
-        </td>
-      </tr>
-    ))}
-  </tbody>
-</Table>
-
+        <thead className="thead-primary table-sorting">
+          <tr>
+            <th>Vessel Name</th>
+            <th>Projects</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {vessels.map((vessel) => (
+            <tr key={vessel._id}>
+              <td>{vessel.vesselName}</td>
+              <td>
+                <ul>
+                  {vessel.projects.map((project) => (
+                    <li key={project._id}>
+                      {project.projectName} - {project.description} <br />
+                      Locations: {project.locations ? project.locations.join(', ') : 'No locations available'} <br />
+                      Attachment: {project.attachment ? project.attachment : 'No file attached'}
+                    </li>
+                  ))}
+                </ul>
+              </td>
+              <td>
+                <Button color="secondary" onClick={() => toggleProjectModal(vessel._id)}>Add Project</Button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </Table>
 
       {/* Vessel Modal using modal.js */}
       <DynamicFormModal
